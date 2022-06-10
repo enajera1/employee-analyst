@@ -1,11 +1,7 @@
 const express = require('express'); 
 const db = require('./db/connection'); 
 // const apiRoutes = require('./routes/apiRoutes');
-const cTable = require('console.table');
 const inquirer = require('inquirer'); 
-const router = require('./routes/apiRoutes');
-const { qualifiedTypeIdentifier } = require('@babel/types');
-
 
 
 const PORT = process.env.PORT || 3001;
@@ -63,6 +59,9 @@ const promptApp = promptInquire => {
         case 'Add a Department':
           addDepartment();
           return;
+        case 'Update an Employee Role':
+          updateRole();
+          return;
         case 'Quit': 
           quit();
           return;
@@ -77,7 +76,7 @@ function viewDepartments() {
       res.status(500).json({ error: err.message });
       return;
     };
-    console.log('Viewing All Departments');
+    console.log('---Viewing All Departments---');
     console.table(row);
     inquirer.prompt([
       {
@@ -139,6 +138,17 @@ function viewRoles () {
 
 function viewEmployees () {
   const sql = `SELECT * FROM employees`;
+//   SELECT  
+// employees.id,
+// employees.first_name , 
+// employees.last_name,
+// roles.title AS Title,
+// roles.salary AS Salary, 
+// roles.department_id AS Department,
+// employees.manager_id AS Manager
+// FROM employees
+// LEFT JOIN roles ON employees.role_id = roles.id
+// INNER JOIN departments ON roles.department_id = department_id;
   db.query(sql, function(err, row) {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -317,33 +327,62 @@ function addRole () {
           case 'Quit':
             quit(); 
         }
+      })
     })
-    }
-    )
   })
 }
+function updateRole() {
+  console.log( `
+  
+  Updating Employee Role
+  
+  `)
+  inquirer.prompt([
+    {
+      type: 'input',
+      message: `What is employee's ID number?`,
+      name: 'id'
+    },
+    {
+      type: 'input',
+      message: `What is employee's new role?`,
+      name: 'role'
+    }
+  ])
+  .then(function(answer) {
+    db.query(`UPDATE employees SET role_id = ? WHERE id = ?`,
+    [answer.role, answer.id],
+    function(err, row){
+      if (err) throw err;
+      console.table(row);
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'choice', 
+          message: 'Select an option.',
+          choices: [
+            'Main Menu',
+            "Quit"
+          ]
+        }
+      ])
+      .then((answer) => {
+        switch (answer.choice){
+          case 'Main Menu':
+            promptApp();
+            return;
+          case 'Quit':
+            quit(); 
+        }
+      })
+    })
+  })
+}
+
 function quit() {
   console.log('Goodbye Friend!');
   process.exit();
 }
-
-
-
-// // GET a single employee
-// db.query(`SELECT * FROM employee WHERE id = 5`, (err, row) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log(row);
-// });
-
-// // Delete an employee. May not need. We'll see. 
-// db.query(`DELETE FROM employee WHERE id = ?`, 1, (err, result) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log(result);
-// });
 
 
 // Default response for any other request (Not Found)
