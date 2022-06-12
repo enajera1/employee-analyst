@@ -1,10 +1,9 @@
 const express = require('express'); 
 const db = require('./db/connection'); 
-// const apiRoutes = require('./routes/apiRoutes');
 const inquirer = require('inquirer'); 
 
 
-const PORT = process.env.PORT || 3001;
+// const PORT = process.env.PORT || 3001;
 const app = express();
 
 
@@ -137,18 +136,17 @@ function viewRoles () {
 }
 
 function viewEmployees () {
-  const sql = `SELECT * FROM employees`;
-//   SELECT  
-// employees.id,
-// employees.first_name , 
-// employees.last_name,
-// roles.title AS Title,
-// roles.salary AS Salary, 
-// roles.department_id AS Department,
-// employees.manager_id AS Manager
-// FROM employees
-// LEFT JOIN roles ON employees.role_id = roles.id
-// INNER JOIN departments ON roles.department_id = department_id;
+  const sql = `  SELECT  
+  employees.id,
+  employees.first_name , 
+  employees.last_name,
+  roles.title AS Title,
+  roles.salary AS Salary, 
+  roles.department_id AS Department,
+  employees.manager_id AS Manager
+  FROM employees
+  LEFT JOIN roles ON employees.role_id = roles.id`;
+
   db.query(sql, function(err, row) {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -390,7 +388,7 @@ app.use((req, res) => {
   res.status(404).end();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
 
